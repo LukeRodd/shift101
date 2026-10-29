@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from .mission import MISSION, ANSWERS, RUNBOOKS
 from .mentor import lookup
 from .ai_mentor import ask, enabled, MentorUnavailable
+from .bedrock_mentor import ask as ask_bedrock
 ROOT = Path(__file__).resolve().parents[2]
 app = FastAPI(title="Shift101 API", version="0.1.0", description="Synthetic educational simulation. No production integrations.")
 
@@ -44,7 +45,8 @@ def mentor(request: MentorRequest) -> dict:
 
 @app.get("/api/ai/status")
 def ai_status() -> dict:
-    return {"enabled": enabled(), "mode": "rag-ollama" if enabled() else "lexical-baseline"}
+    provider = __import__("os").getenv("SHIFT101_AI_PROVIDER", "ollama")
+    return {"enabled": enabled(), "mode": "rag-bedrock" if provider == "bedrock" and enabled() else ("rag-ollama" if enabled() else "lexical-baseline")}
 
 @app.post("/api/ai/mentor")
 def ai_mentor(request: AIRequest) -> dict:
@@ -54,7 +56,7 @@ def ai_mentor(request: AIRequest) -> dict:
     if any(action_id not in allowed for action_id in request.action_ids):
         raise HTTPException(status_code=422, detail="Evidência não reconhecida")
     try:
-        return ask(request.question, request.action_ids)
+        return (ask_bedrock if __import__("os").getenv("SHIFT101_AI_PROVIDER") == "bedrock" else ask)(request.question, request.action_ids)
     except MentorUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
