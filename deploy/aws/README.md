@@ -14,7 +14,7 @@ Architecture: private S3 bucket + CloudFront for the static frontend; API Gatewa
 ```bash
 sam validate -t deploy/aws/template.yaml
 sam build -t deploy/aws/template.yaml
-sam deploy --guided --stack-name shift101-demo --capabilities CAPABILITY_IAM --parameter-overrides EnableBedrock=false
+sam deploy --guided --stack-name shift101-demo --capabilities CAPABILITY_IAM
 ```
 
 Use the outputs `BucketName`, `DistributionId`, and `SiteUrl` from CloudFormation:
@@ -27,10 +27,12 @@ aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --path
 The browser requests `/api/*` through CloudFront. Lambda returns the API responses. The website bucket is private and accessible only through CloudFront. Use **Amazon US East (N. Virginia)** initially if both model IDs are available in your AWS account; verify model availability and permissions before enabling.
 
 ## AI configuration
-Bedrock provider is selected using `SHIFT101_AI_PROVIDER=bedrock`. `EnableBedrock=false` keeps the model endpoint off. Do not set it to true for a public demo until authentication, per-user budgets/quotas, abuse detection and monitoring have been implemented. Lambda reserved concurrency is not a spend ceiling. The first demo can use lexical runbook search without Bedrock.
+Bedrock provider code is present for future work, but **the infrastructure forcibly sets `SHIFT101_AI_ENABLED=false` and does not grant `bedrock:InvokeModel`**. This is a deliberate fail-closed safeguard until checkpoint 05 adds authentication, quotas, abuse detection and spend controls. It cannot be enabled by a deployment parameter. Lambda reserved concurrency and HTTP API throttling are not spending ceilings. The initial demo uses lexical runbook search.
 
 ## Costs and security
-- Set an AWS Budget with alerts *before* deploying. Budgets notify and do not automatically stop charges.
+- At Checkpoint 02, configure an AWS Budget (for example, USD 5/month with 50%, 80%, and 100% notifications) *before* deploying, and review the amount with the account owner. **Budget alerts are not hard spending limits.**
+- A public HTTP API is still directly accessible through `execute-api` and CloudFront. Request throttling (2 req/s, burst 5), Lambda concurrency 2 and log retention 7 days lower operational risk but do not prevent sustained billed usage.
+- The private S3 bucket uses SSE-S3 encryption, an Origin Access Control and blocks public access. CloudFront adds managed security response headers.
 - Limit the IAM role and monitor CloudWatch logs (log retention should be configured before public launch).
 - CloudFront, S3, Lambda, API Gateway, data transfer, logs and Bedrock may be billed independently.
 - All current incidents and runbooks are synthetic; do not upload confidential documentation.
