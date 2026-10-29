@@ -4,6 +4,8 @@ on:
     paths:
       - 'requirements.in'
       - 'requirements-dev.in'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
       - '.github/workflows/generate-lockfiles.yml'
   workflow_dispatch:
 
@@ -31,11 +33,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
           python -m pip check
           python -m pytest -q
-      - name: Print generated lock files for repository commit
+      - name: Ensure committed locks are current
         run: |
-          echo '===SHIFT101_PROD_LOCK_START==='
-          cat requirements.txt
-          echo '===SHIFT101_PROD_LOCK_END==='
-          echo '===SHIFT101_DEV_LOCK_START==='
-          cat requirements-dev.txt
-          echo '===SHIFT101_DEV_LOCK_END==='
+          git diff --exit-code -- requirements.txt requirements-dev.txt
+          echo 'Both committed lock files match reproducible resolver output.'
