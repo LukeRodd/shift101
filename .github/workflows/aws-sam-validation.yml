@@ -1,0 +1,38 @@
+name: AWS SAM validation
+on:
+  pull_request:
+    paths:
+      - 'deploy/aws/**'
+      - 'backend/**'
+      - 'requirements.txt'
+      - '.github/workflows/aws-sam-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate and build without AWS deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install SAM CLI and CloudFormation linter
+        uses: aws-actions/setup-sam@v2
+      - name: Install cfn-lint
+        run: python -m pip install 'cfn-lint>=1,<2'
+      - name: Validate SAM template offline
+        run: sam validate --lint --template-file deploy/aws/template.yaml
+      - name: Build Lambda artifacts (no AWS credentials)
+        run: sam build --template-file deploy/aws/template.yaml --cached
+      - name: Check Lambda bundle
+        run: |
+          test -f .aws-sam/build/ApiFunction/backend/shift101/lambda_handler.py
+          test -f .aws-sam/build/ApiFunction/backend/shift101/main.py
+          test -d .aws-sam/build/ApiFunction/mangum
+          test -d .aws-sam/build/ApiFunction/boto3
