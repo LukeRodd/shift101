@@ -1,0 +1,19 @@
+{
+  "_comment": "Reference ONLY. Replace YOUR_AWS_ACCOUNT_ID, remove this comment field before IAM use, and verify the OIDC sub claim for your GitHub environment.",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::YOUR_AWS_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": "repo:LukeRodd@86422436/shift101@1438746531:environment:aws-demo"
+        }
+      }
+    }
+  ]
+}
