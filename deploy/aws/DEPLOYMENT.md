@@ -17,7 +17,7 @@ O endpoint HTTP API permanece publicamente acessível e consome recursos faturá
 1. Escolher conta e região (sugestão: `us-east-1` para o MVP; a região dos modelos só será analisada no checkpoint de Bedrock).
 2. Criar um **AWS Budget mensal do tipo COST**, em USD, com limite entre USD 0 e USD 10 e **ao menos uma notificação**, e guardar seu nome. Recomendação inicial: `shift101-demo-budget`, USD 5/mês e avisos em 50%, 80%, 100%. **Budget gera alertas; NÃO bloqueia cobranças.** Pode haver cobrança acima do limite.
 3. Criar um provedor IAM OpenID Connect para `https://token.actions.githubusercontent.com` com audiência `sts.amazonaws.com` se não existir.
-4. Criar um papel IAM **dedicado** para deploy, com relação de confiança limitada ao repositório exato e ambiente `aws-demo`. Escopar permissões de CloudFormation, IAM (criação/passagem do papel do Lambda), API Gateway, Lambda, S3 (incluindo artefatos SAM), CloudFront, CloudWatch Logs, `sts:GetCallerIdentity` e leitura do Budget. **Evitar AdministratorAccess e qualquer política irrestrita.** Para conta de produção, preferir role de serviço do CloudFormation e política revisada por administrador.
+4. Criar um papel IAM **dedicado** para deploy, com relação de confiança limitada ao repositório exato e ambiente `aws-demo`. Há um [exemplo de trust policy](oidc-trust.example.json) usando os IDs imutáveis do repositório; substitua `YOUR_AWS_ACCOUNT_ID` pelo seu ID de 12 dígitos e confirme o subject OIDC antes de aplicar. Escopar permissões de CloudFormation, IAM (criação/passagem do papel do Lambda), API Gateway, Lambda, S3 (incluindo artefatos SAM), CloudFront, CloudWatch Logs, `sts:GetCallerIdentity` e leitura do Budget. **Evitar AdministratorAccess e qualquer política irrestrita.** Para conta de produção, preferir role de serviço do CloudFormation e política revisada por administrador.
 5. No repositório GitHub: **Settings → Environments → New environment**, criar `aws-demo` e definir proteção de implantação, como revisão obrigatória, quando disponível.
 6. No ambiente `aws-demo`, adicionar as seguintes **variables** (não são credenciais permanentes):
 
@@ -28,7 +28,7 @@ O endpoint HTTP API permanece publicamente acessível e consome recursos faturá
 | `AWS_ACCOUNT_ID` | ID de 12 dígitos da conta autorizada |
 | `AWS_BUDGET_NAME` | Nome exato do AWS Budget mensal com notificações |
 
-**Nota sobre confiança OIDC:** o repositório `LukeRodd/shift101` foi criado em 2026 e os claims OIDC podem trazer IDs estáveis de proprietário e repositório; workflows com ambiente usam `:environment:aws-demo` em vez de `:ref:refs/heads/main`. Conferir o `sub` efetivo do token com a [documentação atual do GitHub](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws) antes de fixar a trust policy. Não usar curingas amplos (`repo:LukeRodd/*`, `repo:*:* `, etc.).
+**Nota sobre confiança OIDC:** o repositório `LukeRodd/shift101` foi criado em 2026 e os claims OIDC podem trazer IDs estáveis de proprietário e repositório; workflows com ambiente usam `:environment:aws-demo` em vez de `:ref:refs/heads/main`. Conferir o `sub` efetivo do token (para este repositório, o exemplo é `repo:LukeRodd@86422436/shift101@1438746531:environment:aws-demo`) com a [documentação atual do GitHub](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws) antes de fixar a trust policy. Não usar curingas amplos (`repo:LukeRodd/*`, `repo:*:* `, etc.).
 
 ## Executar manualmente pelo GitHub Actions
 
