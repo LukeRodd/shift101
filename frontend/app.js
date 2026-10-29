@@ -1,6 +1,6 @@
 "use strict";
 const q = selector => document.querySelector(selector);
-const state = { mission: null, evidence: [] };
+const state = { mission: null, evidence: [], actionIds: [] };
 function el(tag, cls = "", text) { const node = document.createElement(tag); if(cls) node.className = cls; if(text !== undefined) node.textContent = text; return node; }
 async function api(url, options) { const response = await fetch(url, options); if(!response.ok) throw new Error("Falha HTTP " + response.status); return response.json(); }
 function renderEvidence() { const area = q("#evidence"); area.replaceChildren(); if(!state.evidence.length) { area.textContent = "Nenhum teste executado."; return; } state.evidence.forEach(item => area.appendChild(el("p", "", item))); }
@@ -13,7 +13,7 @@ function renderMission(mission) {
     const button = el("button", "", action.label); button.type = "button";
     button.addEventListener("click", async () => {
       button.disabled = true;
-      try { const result = await api("/api/action/" + encodeURIComponent(action.id)); state.evidence.push(result.result); renderEvidence(); }
+      try { const result = await api("/api/action/" + encodeURIComponent(action.id)); state.evidence.push(result.result); state.actionIds.push(action.id); renderEvidence(); }
       catch(error) { button.disabled = false; state.evidence.push("Erro: " + error.message); renderEvidence(); }
     });
     actions.appendChild(button);
@@ -31,7 +31,7 @@ function renderMission(mission) {
     questions.appendChild(field);
   });
 }
-async function renderRunbooks() {
+async function checkAI() {\n  try { const status = await api("/api/ai/status"); const toggle = q("#ai-toggle"); toggle.disabled = !status.enabled; q("#ai-status").textContent = status.enabled ? "Ollama local disponível para tentativa; modelos precisam estar instalados." : "IA desabilitada: busca textual ativa."; }\n  catch { q("#ai-status").textContent = "Estado da IA indisponível; utilizando busca textual."; }\n}\nasync function renderRunbooks() {
   const documents = await api("/api/runbooks"); const area = q("#runbooks"); area.replaceChildren();
   documents.forEach(doc => { const details = el("details"); details.append(el("summary", "", doc.id + ": " + doc.title), el("p", "", doc.text)); area.appendChild(details); });
 }
@@ -45,7 +45,7 @@ function setupMentor() {
   q("#mentor-form").addEventListener("submit", async event => {
     event.preventDefault(); const output = q("#mentor-response"); output.textContent = "Consultando runbook…";
     try {
-      const result = await api("/api/mentor", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q("#question").value})});
+      const useAI = q("#ai-toggle").checked && !q("#ai-toggle").disabled;\n      const result = await api(useAI ? "/api/ai/mentor" : "/api/mentor", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q("#question").value, action_ids:state.actionIds})});
       output.replaceChildren(el("p", "", result.message));
       if(result.sources.length) output.appendChild(el("small", "", "Fonte: " + result.sources.map(source => source.id + " · " + source.title).join("; ")));
     } catch(error) { output.textContent = "Falha na consulta: " + error.message; }
@@ -70,7 +70,7 @@ function setupQuiz() {
 }
 async function start() {
   setupTabs(); setupMentor(); setupQuiz();
-  try { const mission = await api("/api/mission"); renderMission(mission); await renderRunbooks(); }
+  try { const mission = await api("/api/mission"); renderMission(mission); await renderRunbooks(); await checkAI(); }
   catch(error) { q("#mission-title").textContent = "Não foi possível iniciar"; q("#mission-desc").textContent = "Verifique a API: " + error.message; }
 }
 start();
