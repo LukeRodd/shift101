@@ -1,5 +1,7 @@
 # AWS deployment — experimental
 
+> **Deploy automatizado, mas NÃO executado:** siga [DEPLOYMENT.md](DEPLOYMENT.md) para configurar AWS OIDC, orçamento e as variáveis do ambiente `aws-demo` no GitHub. Após aprovação e merge dos PRs dependentes, a publicação é disparada exclusivamente pelo workflow manual [`deploy-aws.yml`](../../.github/workflows/deploy-aws.yml). A execução é bloqueada sem autenticação, validação da conta, orçamento com notificações e confirmação de custos. A aplicação continua com Bedrock desligado.
+
 Architecture: private S3 bucket + CloudFront for the static frontend; API Gateway HTTP API + AWS Lambda (Python/FastAPI via Mangum); optional Bedrock Nova Micro and Titan Text Embeddings V2. No NAT Gateway, RDS, EC2, or vector database.
 
 **Not deployed.** AWS credentials and a billing account are required. The stack creates billable resources. Start with Bedrock **disabled**. The HTTP API endpoint is separately accessible and unauthenticated; don't enable AI for anonymous traffic.
