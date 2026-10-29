@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Shift101: treinamento de operações de data center por missões simuladas.">
+<title>Shift101 | Missão demonstrativa</title>
+<link rel="stylesheet" href="/styles.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<header class="header"><a class="brand" href="/" aria-label="Shift101, início"><span class="brand-mark">S</span><span>SHIFT<span class="accent">101</span></span></a><div class="topright"><span class="tag">MISSÃO DEMO</span><span class="small">Ambiente fictício · v0.1</span></div></header>
+<main class="shell">
+<div class="intro"><p class="eyebrow">DIA 01 / OPERAÇÃO</p><h1 id="mission-title">Carregando missão…</h1><p class="muted" id="mission-desc">Preparando cenário simulado.</p></div>
+<nav class="tabs" aria-label="Áreas da missão"><button type="button" class="tab active" data-panel="incident">Chamado</button><button type="button" class="tab" data-panel="environment">Ambiente</button><button type="button" class="tab" data-panel="handbook">Apostila</button></nav>
+<section class="workspace">
+<section id="incident" class="panel active" aria-label="Chamado"><div class="panel-head"><span class="eyebrow">INCIDENTE / DEMO-001</span><span class="status">P2 · SIMULADO</span></div><h2>Investigação</h2><p class="muted">Reúna evidências antes de propor qualquer intervenção.</p><div id="actions" class="actions"></div><h3>Registro de evidências</h3><div id="evidence" class="evidence" aria-live="polite">Nenhum teste executado.</div></section>
+<section id="environment" class="panel" aria-label="Ambiente"><div class="panel-head"><span class="eyebrow">LAB-01 / OBSERVABILIDADE</span><span class="status ghost">DEMONSTRAÇÃO</span></div><h2>Serviços monitorados</h2><div class="telemetry"><div><span>GATEWAY</span><strong class="green">ONLINE</strong></div><div><span>HTTP /health</span><strong class="red">502</strong></div><div><span>ORIGEM</span><strong class="yellow">ANÁLISE</strong></div></div><div class="datacenter" aria-label="Ilustração abstrata em CSS de racks de servidores"><div class="rack"></div><div class="rack"></div><div class="rack"></div></div><p class="muted tiny">Ilustração em CSS; não representa infraestrutura real.</p></section>
+<aside id="handbook" class="panel handbook" aria-label="Apostila"><div class="panel-head"><span class="eyebrow">APOSTILA / CONSULTA</span></div><h2>Boas práticas</h2><p class="muted">Conectividade ICMP não comprova que o serviço HTTP está saudável. Registre evidências.</p><div id="runbooks"></div><div class="mentor"><h3>Busca nos runbooks</h3><p class="tiny muted">Busca textual simples. LLM e RAG ainda não implementados.</p><form id="mentor-form"><label for="question">Sua dúvida</label><textarea id="question" maxlength="500" minlength="3" required rows="3" placeholder="Por que o HTTP 502 aparece se o ping funciona?"></textarea><button class="primary" type="submit">Consultar</button></form><div id="mentor-response" aria-live="polite"></div></div></aside>
+</section>
+<section class="quiz" id="quiz"><div class="panel-head"><span class="eyebrow">AVALIAÇÃO / 5 QUESTÕES</span><span class="status ghost">4/5 PARA APROVAR</span></div><h2>Decisão operacional</h2><p class="muted">As correções aparecem somente depois do envio das cinco respostas.</p><form id="quiz-form"><div id="questions"></div><button class="primary" type="submit">Entregar avaliação</button></form><div id="quiz-result" aria-live="polite"></div></section>
+<footer><span>Shift101 · Projeto educacional independente</span><span>Dados sintéticos · Nenhuma integração operacional real</span></footer>
+</main>
+</body></html>
